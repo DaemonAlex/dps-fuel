@@ -112,7 +112,7 @@ their time. The ox_fuel nozzle watches distance twice a second, and only for a p
 
 ## Recent changes
 
-- **1.1.0** Pay after you fill and fuel theft. Out-of-order pumps with a repair job. Pump damage is
+- **19 November 2026 (1.1.0).** Pay after you fill and fuel theft. Out-of-order pumps with a repair job. Pump damage is
   charged to an owned station. BOLO on the plate. Shop clerks remember. Fixes: a player could name
   someone else's car or any object in a drive-off report, and the camera could cut on a bystander.
 
