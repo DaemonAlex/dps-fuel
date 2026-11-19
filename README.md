@@ -26,6 +26,11 @@ each part is a roll, so most drive-offs are just embarrassing.
 5. **The police get a call** in wasabi_mdt: plate, model, the fire if there is one, and the camera
    picture link.
 
+6. **Insurance goes up** (with dps-insurance). A drive-off the camera caught is filed in m-Insurance's
+   accident log with the picture, and the car's active policy gets dearer (10%, or 20% with a pump
+   fire; set in dps-insurance's config, capped at 50% in 90 days). No picture, no proof: nothing is
+   filed (`Config.Insurance.onlyWithCamera`).
+
 Every drive-off is saved in `dps_fuel_driveoffs` (plate, driver, place, fire, explosion, picture).
 A pump has a cooldown (`Config.PumpCooldown`, 5 minutes) so one pump cannot be farmed.
 
@@ -48,6 +53,9 @@ alert, and putting the fire out stops the explosion. Without it there is no fire
 
 **With wasabi_mdt (paid).** The drive-off arrives as a dispatch call. Without it nothing is sent.
 
+**With dps-insurance.** Caught drive-offs raise the car's insurance premium and show in the accident
+log brokers and police read. Without it, no insurance effect.
+
 **With screencapture and a Fivemanage key.** The camera picture needs both (the key is the server-only
 convar `dps:fivemanage_image`, the same one dps-studio uses). Without them the call goes out with no
 picture.
@@ -68,6 +76,7 @@ their time. The ox_fuel nozzle watches distance twice a second, and only for a p
 
 ## Recent changes
 
+- **19 November 2026.** Caught drive-offs go to dps-insurance: accident log entry and a premium rise.
 - **19 November 2026.** First version: ripped hose and stuck nozzle, pump fire and explosion through
   SmartFires, station camera picture, wasabi_mdt call, everything tunable in `config.lua`.
 

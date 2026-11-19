@@ -61,3 +61,11 @@ Config.Messages = {
     pulling = 'Working the nozzle loose...',
     pullLabel = 'Pull out the stuck nozzle',
 }
+
+-- Insurance (dps-insurance): the drive-off is filed in m-Insurance's accident log and raises the car's premium
+-- (the percent per kind is in dps-insurance's config: fuel_driveoff, fuel_driveoff_fire).
+Config.Insurance = {
+    enabled = true,
+    onlyWithCamera = true,   -- no camera picture, no proof: nothing is filed
+    location = 'Gas station',
+}

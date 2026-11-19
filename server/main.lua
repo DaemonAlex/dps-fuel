@@ -111,6 +111,19 @@ RegisterNetEvent('dps-fuel:driveOff', function(data)
             if type(snap) == 'table' then facts.photo, facts.model = snap.photo, snap.model end
         end
         dispatch(pump, Fuel.describe(facts))
+        local caught = roll.camera and driver ~= nil
+        if Config.Insurance.enabled and (caught or not Config.Insurance.onlyWithCamera)
+            and GetResourceState('dps-insurance') == 'started' then
+            local name = dpd and dpd.PlayerData.charinfo and (dpd.PlayerData.charinfo.firstname .. ' ' .. dpd.PlayerData.charinfo.lastname)
+            pcall(function()
+                exports['dps-insurance']:ReportIncident({
+                    plate = facts.plate, kind = roll.fire and 'fuel_driveoff_fire' or 'fuel_driveoff',
+                    citizenid = dpd and dpd.PlayerData.citizenid, name = name,
+                    location = Config.Insurance.location, photo = facts.photo,
+                    notes = facts.model and ('Vehicle: ' .. facts.model) or nil,
+                })
+            end)
+        end
         MySQL.insert('INSERT INTO dps_fuel_driveoffs (plate, citizenid, x, y, z, fire, explode, photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
             { facts.plate, dpd and dpd.PlayerData.citizenid, pump.x, pump.y, pump.z, roll.fire, roll.explode, facts.photo })
         log(('drive-off %s plate %s fire=%s camera=%s'):format(key, tostring(facts.plate), tostring(roll.fire), tostring(facts.photo ~= nil)))
