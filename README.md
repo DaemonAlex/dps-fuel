@@ -36,6 +36,42 @@ each part is a roll, so most drive-offs are just embarrassing.
 Every drive-off is saved in `dps_fuel_driveoffs` (plate, driver, place, fire, explosion, picture).
 A pump has a cooldown (`Config.PumpCooldown`, 5 minutes) so one pump cannot be farmed.
 
+## Pay after you fill, and fuel theft
+
+With `nozzle.payAfter` on in ox_fuel, fuel goes in first and the bill waits at the pump
+(**Pay for your fuel**). The price is worked out on the server: litres times the station's own price.
+
+Drive the fuelled car more than `Config.Tab.leaveRadius` (45 m) from the pump without paying and it is
+fuel theft. No fire, but the station camera may catch it (`Config.Tab.cameraOdds`), the police get the
+call, the plate goes on a BOLO, and the insurance goes up (5%). Walking into the shop is fine: it is
+the car leaving that counts. A bill left for 10 minutes is taken from the bank. Logging out with a
+bill takes it from the bank too.
+
+## Out of order
+
+A pump that had its hose ripped is out of order for 10 minutes, a burned one for 30, a blown one for
+60 (`Config.Broken.minutes`). It gives no nozzle until then, or until a mechanic or city worker fixes
+it (**Repair the pump**, paid `Config.Broken.repairPay`). A burning pump cannot be fixed until the
+fire is out.
+
+## The station pays
+
+When the pump belongs to an owned gas station (lc_gas_stations), pump damage comes out of that
+station's money and shows in its balance (`Config.Station.repairCost`). Stolen fuel is gone from its
+stock and no money arrives. The clerk at a dps-shops counter near the pump remembers the driver.
+
+## BOLO
+
+A plate the camera caught goes on the police computer's own BOLO list (wasabi_mdt, `wsb_mdt_bolos`)
+with the picture link. Police resolve it there. One open BOLO per plate per day.
+
+## What the server checks
+
+The server does not take the player's word for which car or which pump. When a nozzle is clipped in,
+the server checks the player is at that car, the car is at the pump, and the nozzle is a real nozzle
+their own game made. A drive-off only counts for that car. The camera cuts on whoever is in the
+driver's seat. A screen grab is only taken from a player the server just asked.
+
 ## Tuning
 
 Everything is in `config.lua`: the odds, the explosion delay, fire size and type, explosion type, who
@@ -77,6 +113,10 @@ their time. The ox_fuel nozzle watches distance twice a second, and only for a p
 `lua5.4 tests/run.lua` checks the odds, the pump key, who may pull a nozzle and the call text.
 
 ## Recent changes
+
+- **19 November 2026 (1.1.0).** Pay after you fill and fuel theft. Out-of-order pumps with a repair job. Pump damage is
+  charged to an owned station. BOLO on the plate. Shop clerks remember. Fixes: a player could name
+  someone else's car or any object in a drive-off report, and the camera could cut on a bystander.
 
 - **19 November 2026.** Caught drive-offs go to dps-insurance: accident log entry and a premium rise.
 - **19 November 2026.** First version: ripped hose and stuck nozzle, pump fire and explosion through

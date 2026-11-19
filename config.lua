@@ -21,6 +21,7 @@ Config.RemoveJobs = { police = true, bcso = true, sasp = true, mechanic = true }
 Config.Dispatch = {
     code = '10-60',
     title = 'Gas station drive-off',
+    theftTitle = 'Fuel theft',
     departments = { 'police', 'bcso', 'sasp' },
 }
 
@@ -51,6 +52,47 @@ Config.Pull = {
 }
 
 Config.ReportRadius = 80.0   -- a drive-off report must come from a player this close to the pump
+Config.ClipReach = 6.0       -- the player clipping a nozzle in must be this close to the car
+Config.ClipPumpReach = 14.0  -- and the car this close to the pump
+
+-- Pay after you fill (ox_fuel nozzle.payAfter). Fuel goes in first and the bill waits at the pump. Driving the
+-- car away without paying is fuel theft: no fire, but the camera, the police call, the BOLO and the insurance apply.
+Config.Tab = {
+    leaveRadius = 45.0,     -- metres the fuelled car may move from the pump before it counts as leaving
+    maxMinutes = 10,        -- an unpaid bill this old is taken from the bank, or counts as theft if the bank is short
+    cameraOdds = 0.8,       -- chance the station camera catches a fuel theft
+    payFrom = { 'cash', 'bank' },   -- tried in this order
+}
+
+-- Out of order. A pump that had its hose ripped, burned or blew gives no fuel until the time is up or someone
+-- with a repair job fixes it. 0 minutes = that kind never breaks the pump.
+Config.Broken = {
+    minutes = { rip = 10, fire = 30, explode = 60 },
+    repairJobs = { mechanic = true, cityworker = true },
+    repairSeconds = 15,
+    repairPay = 150,        -- paid to the player who fixes it (bank)
+    anim = { dict = 'mini@repair', clip = 'fixing_a_ped' },
+}
+
+-- The station pays. When the pump belongs to an owned gas station (lc_gas_stations, read through ox_fuel), the
+-- repair comes out of that station's money and shows in its balance. Stolen fuel is already gone from its stock.
+Config.Station = {
+    enabled = true,
+    repairCost = { rip = 250, fire = 1200, explode = 4000 },
+}
+
+-- The shop remembers. The clerk at a dps-shops counter this close to the pump remembers the driver (AI clerks).
+Config.ShopMemory = { enabled = true, radius = 60.0 }
+
+-- BOLO. A plate caught on camera goes on the police computer's BOLO list (wasabi_mdt), so a traffic stop or a
+-- plate reader shows it. Police resolve it there.
+Config.Bolo = {
+    enabled = true,
+    onlyWithCamera = true,
+    status = 'active',
+    issuedBy = 'Station camera',
+    dedupeHours = 24,       -- one open BOLO per plate from this script in this many hours
+}
 
 Config.Messages = {
     camera = 'Smile, you are on camera.',
@@ -60,10 +102,24 @@ Config.Messages = {
     nothing = 'Nothing stuck in this one.',
     pulling = 'Working the nozzle loose...',
     pullLabel = 'Pull out the stuck nozzle',
+    owe = 'You owe $%d for fuel. Pay at the pump before you leave.',
+    payLabel = 'Pay for your fuel',
+    paid = 'Paid $%d. Thank you.',
+    noTab = 'You owe nothing here.',
+    cantPay = 'You do not have $%d.',
+    autoPaid = 'Your unpaid fuel ($%d) was taken from your bank.',
+    brokenLabel = 'Out of order',
+    broken = 'This pump is out of order.',
+    repairLabel = 'Repair the pump',
+    repairing = 'Fixing the pump...',
+    repaired = 'Pump fixed. $%d paid to your bank.',
+    repairNo = 'You need a repair job for that.',
+    fireFirst = 'Put the fire out first.',
+    notBroken = 'This pump works fine.',
 }
 
 -- Insurance (dps-insurance): the drive-off is filed in m-Insurance's accident log and raises the car's premium
--- (the percent per kind is in dps-insurance's config: fuel_driveoff, fuel_driveoff_fire).
+-- (the percent per kind is in dps-insurance's config: fuel_driveoff, fuel_driveoff_fire, fuel_theft).
 Config.Insurance = {
     enabled = true,
     onlyWithCamera = true,   -- no camera picture, no proof: nothing is filed

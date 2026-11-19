@@ -19,5 +19,23 @@ eq('pump key rounds', Fuel.pumpKey({ x = 1.4, y = -2.6, z = 30.5 }), '1:-3:31')
 check('police can pull a nozzle', Fuel.canRemove('police')); check('a civilian cannot', not Fuel.canRemove('unemployed'))
 local d = Fuel.describe({ plate = 'ABC123', model = 'Sultan', colour = 'red', fire = true, photo = 'https://x/y.webp' })
 check('description has the plate', d:find('ABC123', 1, true) ~= nil); check('and the photo', d:find('https://x/y.webp', 1, true) ~= nil)
+-- fuel theft and the bill
+eq('drive-off kind', Fuel.kind({}), 'fuel_driveoff'); eq('fire kind', Fuel.kind({ fire = true }), 'fuel_driveoff_fire')
+eq('theft kind', Fuel.kind({ theft = true, fire = true }), 'fuel_theft')
+local t = Fuel.describe({ plate = 'ABC123', theft = true, owed = 84 })
+check('theft text names the bill', t:find('without paying $84', 1, true) ~= nil); check('and not the nozzle', t:find('nozzle', 1, true) == nil)
+local T = { leaveRadius = 45, maxMinutes = 10 }
+eq('car at the pump, fresh bill: fine', Fuel.tabState(5, 30, T), nil)
+eq('car drove away: left', Fuel.tabState(46, 30, T), 'left')
+eq('car is gone: left', Fuel.tabState(nil, 30, T), 'left')
+eq('bill too old: late', Fuel.tabState(5, 601, T), 'late')
+-- out of order
+local B = { minutes = { rip = 10, fire = 30, explode = 0 }, repairJobs = { mechanic = true } }
+eq('a rip breaks the pump for 10 minutes', Fuel.brokenUntil('rip', 1000, nil, B), 1600)
+eq('a fire makes it longer', Fuel.brokenUntil('fire', 1000, 1600, B), 2800)
+eq('a rip does not shorten a fire', Fuel.brokenUntil('rip', 1000, 2800, B), 2800)
+eq('0 minutes never breaks it', Fuel.brokenUntil('explode', 1000, nil, B), nil)
+check('mechanic can repair', Fuel.canRepair('mechanic', B)); check('police cannot', not Fuel.canRepair('police', B))
+check('config has every broken kind priced', Config.Station.repairCost.rip and Config.Station.repairCost.fire and Config.Station.repairCost.explode)
 print(('%d passed, %d failed'):format(passed, failed))
 os.exit(failed == 0 and 0 or 1)
